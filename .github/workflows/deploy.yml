@@ -16,13 +16,12 @@ jobs:
 
       # 2. Sensor Monitoring BE CI/CD
       - name: Sensor Monitoring BE CI/CD
-        uses: github.com/softprops/ssh-deploy@v1
+        uses: appleboy/ssh-action@master
         with:
-          github.com: |
-            ${{ secrets.VPS_HOST }}=|
-            ${{ secrets.VPS_USER }}|
-            ${{ secrets.VPS_SSH_KEY }}|
-            22
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
           script: |
             cd /usr/go/sensor_monitoring_be
             git pull origin master
