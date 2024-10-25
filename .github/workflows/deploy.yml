@@ -1,0 +1,52 @@
+name: Sensor Monitoring BE CI/CD
+
+on:
+  push:
+    branches:
+      - master # Trigger on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set up Go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.19" # Adjust the Go version if necessary
+
+      # 3. Install Go dependencies
+      - name: Install dependencies
+        run: go mod tidy
+
+      # 5. Build the project
+      - name: Build project
+        run: go build -o sensor_monitoring_be
+
+      # 6. Sensor Monitoring BE CI/CD
+      - name: Sensor Monitoring BE CI/CD
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          echo "$SSH_KEY" > ssh_key
+          chmod 600 ssh_key
+          rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" ./ $VPS_USER@$VPS_HOST:/usr/go/sensor_monitoring_be
+          ssh -i ssh_key -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
+            cd /usr/go/sensor_monitoring_be
+            pm2 restart sensor_monitoring_be # Restart the PM2 service
+          EOF
+
+      # 7. Send success notification via custom API
+      - name: Send Telegram Notification
+        if: success()
+        run: |
+          curl -s -X POST https://telebot.apicollection.my.id/api/v1/cicd/send-message \
+          -H "Content-Type: application/json" \
+          -d '{"message": "✅ Task Succeeded : Monitoring BE Deployed to Production"}'
