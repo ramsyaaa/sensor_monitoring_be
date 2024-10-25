@@ -23,17 +23,29 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
+            set -e # Stop the script on errors
+            echo "Navigating to the project directory..."
             cd /usr/go/sensor_monitoring_be
+            
+            echo "Pulling the latest code from the master branch..."
             git pull origin master
+            
+            echo "Cleaning up and updating Go modules..."
             go mod tidy
-            pm2 stop sensor_monitoring_be
+            
+            echo "Building the Go application..."
             go build -o sensor_monitoring_be
-            pm2 start sensor_monitoring_be
+            
+            echo "Restarting the PM2 service..."
+            pm2 restart sensor_monitoring_be
+            
+            echo "Deployment complete!"
 
       # 3. Send success notification via custom API
       - name: Send Telegram Notification
-        if: success()
+        if: success() # This step runs only if previous steps succeeded
         run: |
+          echo "Sending success notification..."
           curl -s -X POST https://telebot.apicollection.my.id/api/v1/cicd/send-message \
           -H "Content-Type: application/json" \
           -d '{"message": "✅ Task Succeeded : Monitoring BE Deployed to Production"}'
