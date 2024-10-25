@@ -3,7 +3,7 @@ name: Sensor Monitoring BE CI/CD
 on:
   push:
     branches:
-      - master # Trigger on push to the main branch
+      - master # Trigger on push to the master branch
 
 jobs:
   deploy:
@@ -18,54 +18,54 @@ jobs:
       - name: Debug SSH Connection
         run: |
           echo "-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAACFwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAgEA3kHRxnM12njAGSDqHFXsLdlod0JcnWIqpc7MWHz/QRonZG4LGsHL
-OXnlevCNpRcqhUPtaRf7nDbKwH/LT5W0d3E+Xzvy4WS2+Qz8rd24YCYsN08MNeVtq3czml
-0ppo7UWHuxJKBLzG9A5/aEH/9YLC9L1m1jns701ddolEda3llnOWG5TLJwti5/5yOFm0lx
-ttb8LMTPNOhkVnxNWehHT6LxFJZxcI52FFShLp86S4TcwDQ7mGrZdWPGIQrqQDQSajgC1K
-IHj//TAfE+w1volBgI2r2AmHgLRsgG7tfbz6Bbryd+mqZV81u2HBK9IxilVk2Xn8Pvwfa0
-HTJ69+AHuYcdBKBtFgEhVIZAdo6PsU2nTar5MQgcldgY3/W4bMZl4ZLVMwO9ezYabXyRXf
-prr/fQntX6eL/dUA6X1KPDg1j0dmapFFCzpT83+4Ct1oGTEZVDzQVxS/qxEhfVJyk0rAic
-WlSt7f4J9QwsYjCSklTlgqOk0Yxg7velOeJy+F5P3Hk4USQvWNYoFar4UDjn+h1bS6RP29
-sq0JPGa5QSa9SOPf0XA4sx9K7T8+hP90R+XG3rVcD+lisIEvhEuvD9F3Y6zgzDbGDoHwkw
-t3wTp+KSj6cfQotUVfelXVrR8p7+XX3B+clieORF/bCoT3bjLUGMeOQWHAieqKeh0TkuBU
-kAAAdIcd9j8HHfY/AAAAAHc3NoLXJzYQAAAgEA3kHRxnM12njAGSDqHFXsLdlod0JcnWIq
-pc7MWHz/QRonZG4LGsHLOXnlevCNpRcqhUPtaRf7nDbKwH/LT5W0d3E+Xzvy4WS2+Qz8rd
-24YCYsN08MNeVtq3czml0ppo7UWHuxJKBLzG9A5/aEH/9YLC9L1m1jns701ddolEda3lln
-OWG5TLJwti5/5yOFm0lxttb8LMTPNOhkVnxNWehHT6LxFJZxcI52FFShLp86S4TcwDQ7mG
-rZdWPGIQrqQDQSajgC1KIHj//TAfE+w1volBgI2r2AmHgLRsgG7tfbz6Bbryd+mqZV81u2
-HBK9IxilVk2Xn8Pvwfa0HTJ69+AHuYcdBKBtFgEhVIZAdo6PsU2nTar5MQgcldgY3/W4bM
-Zl4ZLVMwO9ezYabXyRXfprr/fQntX6eL/dUA6X1KPDg1j0dmapFFCzpT83+4Ct1oGTEZVD
-zQVxS/qxEhfVJyk0rAicWlSt7f4J9QwsYjCSklTlgqOk0Yxg7velOeJy+F5P3Hk4USQvWN
-YoFar4UDjn+h1bS6RP29sq0JPGa5QSa9SOPf0XA4sx9K7T8+hP90R+XG3rVcD+lisIEvhE
-uvD9F3Y6zgzDbGDoHwkwt3wTp+KSj6cfQotUVfelXVrR8p7+XX3B+clieORF/bCoT3bjLU
-GMeOQWHAieqKeh0TkuBUkAAAADAQABAAACAQCL4AaCi21gElBrQCC2NokODd5F9/jLf8Vx
-VmWaZwhJ04jpFqxcaYxZntKCfbPXK24yMp7OXi6WkJEndwXgD0plRVrImrTvju/sa3T2gy
-yPLlbzdAcuQDa2C63pPyqATTFsgmPotg0eGwJROf7LGGtIW3ex+mQQxRSnJAsIDqQsfT2O
-imcQ0thGf5s1P1DNevpa5JAOKMpy9LJ5D3+qzplakCSDHW9FNBMyFlTeP41zi6lWOUksUk
-qLK4C8uN7WCy9vs9JsOZDi2lDUzxv93PDRixK/fzXYPuxx3l8mn6kR0U0CPava7kX3g0do
-AY8Q8GjVmL2M6cYRXw7ZtTRYnaCdwSHJ22klDKVZjZX2ul1XrciZ4zqY5lUXpGfJ1wyhts
-deJa0+Bkbrz/tmJOmvo1l0P+lO1MWI35Jw7JS91ep7L4geYFEcB7+/ZaDR80WtpNWVMFnX
-PypYNn5GMqdOuesgF5CaGCS6ppyIzVAue1BGjbnzdofDgUlhUcmUXmA+kImezyUf1IyREq
-XFQyS8Seo+eIrIv8RJFMK8t2qPvtupOhvUZ5kGx4u2lr0rDBg9473fjJW6PHutAapd238V
-TzVPRux0gxxfUTNk1Sk5Et21F1AsUxntdNlMZw4vBuG73QB5j1aPTk/R0jskbjsypzwMCZ
-k9zfQVY+OEn+0lQEOKgQAAAQA8T5sowFgVZPYNRcoSdOO7VdhyWy5BhNligzwKftOOJQ/1
-mdwqCkKNQysj8CYAW6f+xlsop6Al5KcbJ0DPnLsfO9GlsoY6Jvv/RotoOJGg7u5v2r5yu/
-82NrF6zpIxXOdkgGQw6ofPthOkVtdStwDm3JTxMypXf5EmhkaKLC1St/ide3c4L2kHGQEV
-ETQHcBMp7ym0Sc0sMiDi8JZ3ntJHN9qIAKVz2gBEwAqOzLVmsSLR7fQmfA/Ep7GHfVGMM2
-vPoY2jvqUb/DHHsOBAXHMvkiMp7LmrejBu9L7sUlV+cBJ4mlQIIwdRPaQEA4ht+xcJ5003
-KbrWIorRSpVTTqXPAAABAQDvXBrB06xrhsi/yG8Ul9Ess1Afx0tGOvZbEirp1E+kOIriMn
-gLckeVQKoQ+peJ7hw/zUBkyDhAjTHRjU3QmXSPHPbB8imKzg9SHBN/QKawREAO2NY7vQ0Q
-kIg47soV8BD690BXJi7Y472JgvRjUj0C1O1XdTP+CUlqXQvIq1Cx6qiBfo2fPos7ccchpu
-31CRKxBSOXwRPJ6aUp/Z7U/8eb4AuOV4y0TKdOMMg0OpI8E5dIMVVneBVYnZaznVkBiSJZ
-I2yt3exRhsF+e9DMfRZVHVZnQYEMCCVBGvbfiJpjSXe5kFxIbOxb3c3/su3/TcSrq4hMzR
-1Hyf6XUoF9xr6ZAAABAQDttVaBklCwrnmPBSuRKA8IZ0WGcyx6bB86S0jmYvbCrCArR6Ww
-kXMn2PY+9PKc8wmIxQd/JAczma2dnXB4VPI7FuOtCOtZ5LjUu8cb4ESQVWQuGD364hluwF
-KMwXlgfnvwwqRRJLGDSXAcfEHK2cwswKNlgI7riDxuqH1/n6ozcSe5HJnnltmjVZlXaLAQ
-QGXxtpI+hCNFIEOpi5S7xkQhA3aH9qi4VI78parMeXxe34yrMjdNs7RS7pHBy8SiYQ4B+b
-WGfY7r/apHh6utWuWDEoAUdd50E8TPxh2VCKpAbyK7GZ82H3NIgHnEabjRsizovn1PhDZS
-sP8sy1dSCBoxAAAADWdpdGh1Yi1hY3Rpb24BAgMEBQ==
------END OPENSSH PRIVATE KEY-----" > ssh_key
+          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
+          -----END OPENSSH PRIVATE KEY-----" > ssh_key
           chmod 600 ssh_key
           ssh -i ssh_key -o StrictHostKeyChecking=no ramdhan@38.242.223.36 "echo Connected!"
         shell: bash
