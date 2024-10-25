@@ -14,22 +14,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Sensor Monitoring BE CI/CD
+      # 2. Debug SSH Connection
+      - name: Debug SSH Connection
+        run: |
+          ssh -i <(echo "${{ secrets.VPS_SSH_KEY }}") -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo Connected!"
+
+      # 3. Sensor Monitoring BE CI/CD
       - name: Sensor Monitoring BE CI/CD
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
+            set -e  # Exit immediately if a command exits with a non-zero status
             cd /usr/go/sensor_monitoring_be
             git pull origin master
             go mod tidy
             go build -o sensor_monitoring_be
             pm2 reload sensor_monitoring_be
 
-      # 3. Send success notification via custom API
+      # 4. Send success notification via custom API
       - name: Send Telegram Notification
         if: success()
         run: |
