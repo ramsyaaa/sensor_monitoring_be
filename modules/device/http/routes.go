@@ -7,5 +7,6 @@ import (
 func DeviceRoutes(app *fiber.App, handler *DeviceHandler) {
 	deviceHandler := NewDeviceHandler()
 
-	app.Get("/get-device", deviceHandler.HandleGetDevices)
+	app.Post("/get-device", deviceHandler.HandleGetDevices)
+	app.Post("/get-device/with-sensor", deviceHandler.HandleGetDevicesWithSensor)
 }
