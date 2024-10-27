@@ -22,6 +22,7 @@ func Route() {
 	api := fiber.New()
 
 	routes.AuthRouter(api)
+	routes.DeviceRouter(api)
 
 	// Mount the "api/v1" group under the main app
 	app.Mount("/api/v1", api)

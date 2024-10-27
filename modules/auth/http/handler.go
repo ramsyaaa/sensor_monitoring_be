@@ -41,11 +41,14 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	}
 	defer resp.Body.Close()
 
-	var responseMap map[string]interface{}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
+	if len(respBody) == 0 {
+		return c.Status(http.StatusOK).JSON(helper.APIResponse("Login Failed, Invalid Credentials", http.StatusBadRequest, "Error", nil))
+	}
+	var responseMap map[string]interface{}
 	err = json.Unmarshal(respBody, &responseMap)
 	if err != nil {
 		return err

@@ -44,7 +44,7 @@ jobs:
         run: |
           curl -s -X POST https://telebot.apicollection.my.id/api/v1/cicd/send-message \
           -H "Content-Type: application/json" \
-          -d '{"message": "✅ Task Succeeded : Monitoring BE Deployed to Production"}'
+          -d '{"message": "✅ Task Succeeded\n${GITHUB_EVENT_COMMIT_MESSAGE}\nMonitoring BE Deployed to Production"}'
 
       # 5. Cleanup
       - name: Remove SSH Key
