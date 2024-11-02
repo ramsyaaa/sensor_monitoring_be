@@ -260,21 +260,29 @@ func (h *DeviceHandler) HandleGetSensorHistory(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(helper.APIResponse("Unauthorized", http.StatusUnauthorized, "Unauthorized", nil))
 	}
 
-	var request map[string]interface{}
-	if err := c.BodyParser(&request); err != nil {
+	type RequestBody struct {
+		UserId      int    `json:"userId"`
+		SensorId    int    `json:"sensorId"`
+		StartDate   string `json:"startDate"`
+		EndDate     string `json:"endDate"`
+		PageSize    int    `json:"pageSize"`
+		PagingState string `json:"pagingState"`
+	}
+
+	var requestBody RequestBody
+	if err := c.BodyParser(&requestBody); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(helper.APIResponse("Invalid request", http.StatusBadRequest, "Bad Request", nil))
 	}
-	userId := request["userId"]
-	sensorId := request["sensorId"]
-	startDate := request["startDate"]
-	endDate := request["endDate"]
-	pageSize := request["pageSize"]
-	pagingState := request["pagingState"]
-
+	userId := requestBody.UserId
+	sensorId := requestBody.SensorId
+	startDate := requestBody.StartDate
+	endDate := requestBody.EndDate
+	pageSize := requestBody.PageSize
+	pagingState := requestBody.PagingState
 	// Hit external API to get devices
 	baseURL := os.Getenv("BASE_URL")
-	reqBody := fmt.Sprintf(`{"userId":%d,"sensorId":%d,"startDate":%d,"endDate":%d,"pageSize":%d,"pagingState":%d}`, userId, sensorId, startDate, endDate, pageSize, pagingState)
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/device/getSensorHistory", baseURL), strings.NewReader(reqBody))
+	reqBody := fmt.Sprintf(`{"userId":%d,"sensorId":%d,"startDate":"%s","endDate":"%s","pageSize":%d,"pagingState":"%s"}`, userId, sensorId, startDate, endDate, pageSize, pagingState)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/device/getSensorHistroy", baseURL), strings.NewReader(reqBody))
 	if err != nil {
 		return err
 	}
@@ -301,6 +309,6 @@ func (h *DeviceHandler) HandleGetSensorHistory(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(helper.APIResponse("Failed to unmarshal devices", http.StatusBadRequest, "Bad Request", nil))
 	}
 
-	response := helper.APIResponse("Devices Single Data fetched successfully", http.StatusOK, "OK", responseMap)
+	response := helper.APIResponse("Sensor History data fetched successfully", http.StatusOK, "OK", responseMap)
 	return c.Status(http.StatusOK).JSON(response)
 }
