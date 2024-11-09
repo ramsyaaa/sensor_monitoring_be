@@ -7,9 +7,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"gorm.io/gorm"
 )
 
-func Route() {
+func Route(db *gorm.DB) {
 
 	app := fiber.New()
 	// Use the cors middleware to allow all origins and methods
@@ -23,6 +24,8 @@ func Route() {
 
 	routes.AuthRouter(api)
 	routes.DeviceRouter(api)
+
+	routes.GeoMappingRouter(api, db)
 
 	// Mount the "api/v1" group under the main app
 	app.Mount("/api/v1", api)

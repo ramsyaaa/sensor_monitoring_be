@@ -13,6 +13,6 @@ func main() {
 		log.Println(".env file not found, using environment variables instead")
 	}
 
-	// config.Connect()
-	config.Route()
+	db := config.Connect()
+	config.Route(db)
 }
