@@ -15,4 +15,5 @@ func main() {
 
 	db := config.Connect()
 	config.Route(db)
+
 }
