@@ -3,6 +3,7 @@ package helper
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -74,19 +75,27 @@ func DisableColorLogger() fiber.Handler {
 }
 
 func LogToFile() fiber.Handler {
-	// Define log file path based on the current date
+	// Tentukan jalur file log berdasarkan tanggal saat ini
 	filePath := "logs/" + time.Now().Format("20060102") + "-log.log"
 
-	// Open the file with read/write, create or append mode
+	// Cek apakah file log untuk tanggal saat ini sudah ada
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		// Jika file tidak ada, buat file baru
+		if err := os.MkdirAll(filepath.Dir(filePath), 0666); err != nil {
+			log.Fatalf("error creating directory: %v", err)
+		}
+		if _, err := os.Create(filePath); err != nil {
+			log.Fatalf("error creating file: %v", err)
+		}
+	}
+
+	// Buka file dengan mode baca/tulis, buat atau tambah
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 
-	// Create a writer to write to the file only
-	// Tidak ada lagi stdout karena perubahan untuk tidak mencetak log di command line
-
-	// Return the fiber logger middleware, directing it to the file writer
+	// Kembalikan middleware logger fiber, mengarahkannya ke penulis file
 	return logger.New(logger.Config{
 		Format:     "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path} | ${error}\n",
 		TimeFormat: time.RFC3339,
