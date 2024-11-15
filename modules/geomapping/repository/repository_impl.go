@@ -45,3 +45,47 @@ func (r *repository) UpdateSensorData(ctx context.Context, sensorId int, data ma
 	}
 	return nil
 }
+
+func (r *repository) UpdateDeviceData(ctx context.Context, deviceId int, data map[string]interface{}) error {
+	err := r.db.WithContext(ctx).Model(&models.Device{}).Where("id = ?", deviceId).Updates(data).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *repository) GetGroup(ctx context.Context) ([]map[string]interface{}, error) {
+	var groups []map[string]interface{}
+	err := r.db.WithContext(ctx).Model(&models.Group{}).Select("group_id, group_name").Find(&groups).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return groups, err
+}
+
+func (r *repository) GetCity(ctx context.Context) ([]map[string]interface{}, error) {
+	var cities []map[string]interface{}
+	err := r.db.WithContext(ctx).Model(&models.City{}).Select("city_id, city_name").Find(&cities).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return cities, err
+}
+
+func (r *repository) GetDistrict(ctx context.Context, cityID int) ([]map[string]interface{}, error) {
+	var districts []map[string]interface{}
+	err := r.db.WithContext(ctx).Model(&models.District{}).Where("city_id = ?", cityID).Select("district_id, district_name").Find(&districts).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return districts, err
+}
+
+func (r *repository) GetSubDistrict(ctx context.Context, districtID int) ([]map[string]interface{}, error) {
+	var subDistricts []map[string]interface{}
+	err := r.db.WithContext(ctx).Model(&models.Subdistrict{}).Where("district_id = ?", districtID).Select("subdistrict_id, subdistrict_name").Find(&subDistricts).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return subDistricts, err
+}

@@ -27,11 +27,14 @@ document.addEventListener("DOMContentLoaded", function () {
           option.textContent = file;
           logFileSelect.appendChild(option);
         });
+
+        // Initialize Select2 on the log file select element after options are loaded
+        $(logFileSelect).select2(); // Initialize Select2
       })
       .catch((error) => console.error("Error fetching log files:", error));
   }
 
-  // Function to fetch logs from the selected log file
+  // Function to fetch logs from the selected log file, including pagination
   function fetchLogs() {
     if (!currentLogFile) {
       return; // Do nothing if no log file is selected
@@ -49,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => console.error("Error fetching logs:", error));
   }
 
-  // Function to load logs into the table UI with filtering
+  // Function to load logs into the table UI with filtering applied
   function loadLogs() {
     logList.innerHTML = ""; // Clear current list
 
@@ -116,9 +119,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Handle file selection
-  logFileSelect.addEventListener("change", function () {
-    currentLogFile = logFileSelect.value;
+  // Handle file selection with Select2
+  $(logFileSelect).on("change", function () {
+    currentLogFile = $(logFileSelect).val(); // Get selected value
     fetchLogs(); // Fetch logs when a file is selected
   });
 

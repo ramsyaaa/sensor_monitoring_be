@@ -6,6 +6,11 @@
     <title>Log Viewer Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include Select2 CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+      rel="stylesheet"
+    />
     <!-- SheetJS Library for Excel export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
   </head>
@@ -91,7 +96,7 @@
       <div class="mb-6 flex justify-center">
         <button
           id="exportButton"
-          class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 hidden"
+          class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 hidden"
         >
           Export to Excel
         </button>
@@ -136,5 +141,20 @@
     </div>
 
     <script src="/static/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+      // Initialize Select2 on the log file select after the document is loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait for the options to be added, then apply select2
+        const logFileSelect = document.getElementById("logFileSelect");
+        $(logFileSelect).select2({
+          placeholder: "Search for a log file",
+          allowClear: true, // Optional: To allow clearing the selection
+        });
+      });
+    </script>
   </body>
 </html>
