@@ -17,9 +17,24 @@ func NewGeoMappingRepository(db *gorm.DB) GeoMappingRepository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetDevice(ctx context.Context) ([]map[string]interface{}, error) {
+func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId, subdistrictId int) ([]map[string]interface{}, error) {
 	var devices []map[string]interface{}
-	err := r.db.WithContext(ctx).Model(&models.Device{}).Select("id, device_name, device_no, lat, lng").Find(&devices).Error
+	query := r.db.WithContext(ctx).Model(&models.Device{}).Select("id, device_name, device_no, lat, lng, city_id, group_id, district_id, subdistrict_id, point_code, address, electrical_panel, surrounding_waters, location_information, note")
+
+	if groupId != 0 {
+		query = query.Where("group_id = ?", groupId)
+	}
+	if cityId != 0 {
+		query = query.Where("city_id = ?", cityId)
+	}
+	if districtId != 0 {
+		query = query.Where("district_id = ?", districtId)
+	}
+	if subdistrictId != 0 {
+		query = query.Where("subdistrict_id = ?", subdistrictId)
+	}
+
+	err := query.Find(&devices).Error
 
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil

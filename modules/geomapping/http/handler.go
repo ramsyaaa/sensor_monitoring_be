@@ -21,7 +21,24 @@ func NewGeoMappingHandler(service service.GeoMappingService) *GeoMappingHandler 
 
 func (h *GeoMappingHandler) GetDevice(c *fiber.Ctx) error {
 	ctx := context.Background()
-	devices, err := h.service.GetDevice(ctx)
+	groupID, err := strconv.Atoi(c.Query("group_id"))
+	if err != nil {
+		groupID = 0
+	}
+	cityID, err := strconv.Atoi(c.Query("city_id"))
+	if err != nil {
+		cityID = 0
+	}
+	districtID, err := strconv.Atoi(c.Query("district_id"))
+	if err != nil {
+		districtID = 0
+	}
+	subdistrictID, err := strconv.Atoi(c.Query("subdistrict_id"))
+	if err != nil {
+		subdistrictID = 0
+	}
+
+	devices, err := h.service.GetDevice(ctx, groupID, cityID, districtID, subdistrictID)
 	if err != nil {
 		response := helper.APIResponse("Failed to fetch device data", http.StatusInternalServerError, "ERROR", nil)
 		return c.Status(http.StatusInternalServerError).JSON(response)

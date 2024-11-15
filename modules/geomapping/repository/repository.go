@@ -5,7 +5,7 @@ import (
 )
 
 type GeoMappingRepository interface {
-	GetDevice(ctx context.Context) ([]map[string]interface{}, error)
+	GetDevice(ctx context.Context, groupId, cityId, districtId, subdistrictId int) ([]map[string]interface{}, error)
 	GetSensor(ctx context.Context, deviceID int) ([]map[string]interface{}, error)
 	UpdateSensorData(ctx context.Context, sensorId int, data map[string]interface{}) error
 	UpdateDeviceData(ctx context.Context, deviceId int, data map[string]interface{}) error
