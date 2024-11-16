@@ -43,6 +43,16 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 	return devices, err
 }
 
+func (r *repository) GetDeviceDetail(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
+	var device []map[string]interface{}
+	err := r.db.WithContext(ctx).Model(&models.Device{}).Where("id = ?", deviceId).Select("id, device_name, device_no, lat, lng, city_id, group_id, district_id, subdistrict_id, point_code, address, electrical_panel, surrounding_waters, location_information, note").Find(&device).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return device, err
+}
+
 func (r *repository) GetSensor(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
 	var sensors []map[string]interface{}
 	err := r.db.WithContext(ctx).Model(&models.Sensor{}).Where("device_id = ?", deviceId).Select("id, device_id, sensor_name, lat, lng").Find(&sensors).Error

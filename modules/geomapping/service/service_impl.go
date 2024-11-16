@@ -18,6 +18,10 @@ func (s *service) GetDevice(ctx context.Context, group_id, city_id, district_id,
 	return s.repo.GetDevice(ctx, group_id, city_id, district_id, subdistrict_id)
 }
 
+func (s *service) GetDeviceDetail(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
+	return s.repo.GetDeviceDetail(ctx, deviceId)
+}
+
 func (s *service) GetSensor(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
 	return s.repo.GetSensor(ctx, deviceId)
 }

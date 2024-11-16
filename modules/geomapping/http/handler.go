@@ -47,6 +47,28 @@ func (h *GeoMappingHandler) GetDevice(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(response)
 }
 
+func (h *GeoMappingHandler) GetDeviceDetail(c *fiber.Ctx) error {
+	ctx := context.Background()
+	type Request struct {
+		DeviceID int `json:"deviceId"`
+	}
+
+	var req Request
+	if err := c.BodyParser(&req); err != nil {
+		response := helper.APIResponse("Invalid device id", http.StatusBadRequest, "ERROR", nil)
+		return c.Status(http.StatusBadRequest).JSON(response)
+	}
+
+	device, err := h.service.GetDeviceDetail(ctx, req.DeviceID)
+	if err != nil {
+		response := helper.APIResponse("Failed to fetch device data", http.StatusInternalServerError, "ERROR", nil)
+		return c.Status(http.StatusInternalServerError).JSON(response)
+	}
+
+	response := helper.APIResponse("Device Detail data fetched successfully", http.StatusOK, "OK", device)
+	return c.Status(http.StatusOK).JSON(response)
+}
+
 func (h *GeoMappingHandler) GetSensor(c *fiber.Ctx) error {
 	ctx := context.Background()
 	type Request struct {
