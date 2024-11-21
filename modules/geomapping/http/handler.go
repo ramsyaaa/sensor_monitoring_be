@@ -37,8 +37,9 @@ func (h *GeoMappingHandler) GetDevice(c *fiber.Ctx) error {
 	if err != nil {
 		subdistrictID = 0
 	}
+	keyword := c.Query("keyword")
 
-	devices, err := h.service.GetDevice(ctx, groupID, cityID, districtID, subdistrictID)
+	devices, err := h.service.GetDevice(ctx, groupID, cityID, districtID, subdistrictID, keyword)
 	if err != nil {
 		response := helper.APIResponse("Failed to fetch device data", http.StatusInternalServerError, "ERROR", nil)
 		return c.Status(http.StatusInternalServerError).JSON(response)

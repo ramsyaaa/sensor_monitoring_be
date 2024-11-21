@@ -17,25 +17,46 @@ func NewGeoMappingRepository(db *gorm.DB) GeoMappingRepository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId, subdistrictId int) ([]map[string]interface{}, error) {
+func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId, subdistrictId int, keyword string) ([]map[string]interface{}, error) {
 	var devices []map[string]interface{}
-	query := r.db.WithContext(ctx).Model(&models.Device{}).Select("id, device_name, device_no, lat, lng, city_id, group_id, district_id, subdistrict_id, point_code, address, electrical_panel, surrounding_waters, location_information, note")
+
+	query := `SELECT d.id, d.device_name, d.device_no, d.lat, d.lng, 
+		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
+		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
+		d.location_information, d.note,
+		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name
+	FROM devices d
+	LEFT JOIN groups g ON d.group_id = g.group_id
+	LEFT JOIN cities c ON d.city_id = c.city_id 
+	LEFT JOIN districts dt ON d.district_id = dt.district_id
+	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
+	WHERE 1=1`
+
+	var params []interface{}
 
 	if groupId != 0 {
-		query = query.Where("group_id = ?", groupId)
+		query += ` AND d.group_id = ?`
+		params = append(params, groupId)
 	}
 	if cityId != 0 {
-		query = query.Where("city_id = ?", cityId)
+		query += ` AND d.city_id = ?`
+		params = append(params, cityId)
 	}
 	if districtId != 0 {
-		query = query.Where("district_id = ?", districtId)
+		query += ` AND d.district_id = ?`
+		params = append(params, districtId)
 	}
 	if subdistrictId != 0 {
-		query = query.Where("subdistrict_id = ?", subdistrictId)
+		query += ` AND d.subdistrict_id = ?`
+		params = append(params, subdistrictId)
+	}
+	if keyword != "" {
+		query += ` AND (LOWER(d.address) LIKE LOWER(?) OR LOWER(d.point_code) LIKE LOWER(?) OR LOWER(g.group_name) LIKE LOWER(?) OR LOWER(c.city_name) LIKE LOWER(?) OR LOWER(dt.district_name) LIKE LOWER(?) OR LOWER(sd.subdistrict_name) LIKE LOWER(?))`
+		keyword = "%" + keyword + "%"
+		params = append(params, keyword, keyword, keyword, keyword, keyword, keyword)
 	}
 
-	err := query.Find(&devices).Error
-
+	err := r.db.WithContext(ctx).Raw(query, params...).Scan(&devices).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}

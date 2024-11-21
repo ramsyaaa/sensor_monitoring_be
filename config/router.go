@@ -45,6 +45,7 @@ func Route(db *gorm.DB) {
 	routes.AuthRouter(api)
 	routes.DeviceRouter(api)
 	routes.GeoMappingRouter(api, db)
+	routes.CronRouter(api)
 
 	// Mount the "api/v1" group under the main app
 	app.Mount("/api/v1", api)

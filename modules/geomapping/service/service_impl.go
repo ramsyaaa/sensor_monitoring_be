@@ -14,8 +14,8 @@ func NewGeoMappingService(repo repository.GeoMappingRepository) GeoMappingServic
 	return &service{repo: repo}
 }
 
-func (s *service) GetDevice(ctx context.Context, group_id, city_id, district_id, subdistrict_id int) ([]map[string]interface{}, error) {
-	return s.repo.GetDevice(ctx, group_id, city_id, district_id, subdistrict_id)
+func (s *service) GetDevice(ctx context.Context, group_id, city_id, district_id, subdistrict_id int, keyword string) ([]map[string]interface{}, error) {
+	return s.repo.GetDevice(ctx, group_id, city_id, district_id, subdistrict_id, keyword)
 }
 
 func (s *service) GetDeviceDetail(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
