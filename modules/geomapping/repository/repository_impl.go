@@ -76,7 +76,7 @@ func (r *repository) GetDeviceDetail(ctx context.Context, deviceId int) ([]map[s
 
 func (r *repository) GetSensor(ctx context.Context, deviceId int) ([]map[string]interface{}, error) {
 	var sensors []map[string]interface{}
-	err := r.db.WithContext(ctx).Model(&models.Sensor{}).Where("device_id = ?", deviceId).Select("id, device_id, sensor_name, lat, lng").Find(&sensors).Error
+	err := r.db.WithContext(ctx).Model(&models.Sensor{}).Where("device_id = ?", deviceId).Select("id, device_id, sensor_name, is_line, lat, lng").Find(&sensors).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
