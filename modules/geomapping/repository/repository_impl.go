@@ -20,7 +20,7 @@ func NewGeoMappingRepository(db *gorm.DB) GeoMappingRepository {
 func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId, subdistrictId int, keyword string) ([]map[string]interface{}, error) {
 	var devices []map[string]interface{}
 
-	query := `SELECT d.id, d.device_name, d.device_no, d.lat, d.lng, 
+	query := `SELECT d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, 
 		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
 		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
 		d.location_information, d.note,
