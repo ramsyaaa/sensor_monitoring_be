@@ -49,3 +49,7 @@ func (s *service) GetDistrict(ctx context.Context, cityId int) ([]map[string]int
 func (s *service) GetSubDistrict(ctx context.Context, districtId int) ([]map[string]interface{}, error) {
 	return s.repo.GetSubDistrict(ctx, districtId)
 }
+
+func (s *service) Dashboard(ctx context.Context) ([]map[string]interface{}, error) {
+	return s.repo.Dashboard(ctx)
+}

@@ -230,3 +230,15 @@ func (h *GeoMappingHandler) GetSubDistrict(c *fiber.Ctx) error {
 	response := helper.APIResponse("Subdistrict data retrieved successfully", http.StatusOK, "OK", subDistricts)
 	return c.Status(http.StatusOK).JSON(response)
 }
+
+func (h *GeoMappingHandler) Dashboard(c *fiber.Ctx) error {
+	ctx := context.Background()
+
+	devices, err := h.service.Dashboard(ctx)
+	if err != nil {
+		response := helper.APIResponse("Failed to fetch dashboard data", http.StatusInternalServerError, "ERROR", nil)
+		return c.Status(http.StatusInternalServerError).JSON(response)
+	}
+	response := helper.APIResponse("Dashboard data fetched successfully", http.StatusOK, "OK", devices)
+	return c.Status(http.StatusOK).JSON(response)
+}

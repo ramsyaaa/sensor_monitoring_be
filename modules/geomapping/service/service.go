@@ -14,4 +14,5 @@ type GeoMappingService interface {
 	GetCity(ctx context.Context) ([]map[string]interface{}, error)
 	GetDistrict(ctx context.Context, cityId int) ([]map[string]interface{}, error)
 	GetSubDistrict(ctx context.Context, districtId int) ([]map[string]interface{}, error)
+	Dashboard(ctx context.Context) ([]map[string]interface{}, error)
 }

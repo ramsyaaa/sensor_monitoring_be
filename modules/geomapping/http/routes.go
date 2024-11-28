@@ -14,4 +14,5 @@ func GeoMappingRoutes(app *fiber.App, handler *GeoMappingHandler) {
 	app.Get("/geomapping/city-list", handler.GetCity)
 	app.Get("/geomapping/district-list/", handler.GetDistrict)
 	app.Get("/geomapping/subdistrict-list/", handler.GetSubDistrict)
+	app.Get("/geomapping/dashboard/", handler.Dashboard)
 }
