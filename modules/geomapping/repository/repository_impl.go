@@ -30,7 +30,8 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 	LEFT JOIN cities c ON d.city_id = c.city_id 
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
-	WHERE 1=1`
+	WHERE 1=1
+	ORDER BY d.is_line DESC`
 
 	var params []interface{}
 
