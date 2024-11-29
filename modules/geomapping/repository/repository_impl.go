@@ -30,8 +30,7 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 	LEFT JOIN cities c ON d.city_id = c.city_id 
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
-	WHERE 1=1
-	ORDER BY d.is_line DESC`
+	WHERE 1=1`
 
 	var params []interface{}
 
@@ -56,6 +55,8 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 		keyword = "%" + keyword + "%"
 		params = append(params, keyword, keyword, keyword, keyword, keyword, keyword)
 	}
+
+	query += ` ORDER BY d.is_line DESC`
 
 	err := r.db.WithContext(ctx).Raw(query, params...).Scan(&devices).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
