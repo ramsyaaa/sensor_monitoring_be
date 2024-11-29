@@ -141,25 +141,61 @@ func (r *repository) GetSubDistrict(ctx context.Context, districtID int) ([]map[
 func (r *repository) Dashboard(ctx context.Context) ([]map[string]interface{}, error) {
 	var devices []map[string]interface{}
 
-	query := `SELECT d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, 
-		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
-		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
-		d.location_information, d.note,
-		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name,
-		s.id as sensor_id, s.sensor_name
+	query := `SELECT 
+		g.group_name,
+		d.id,
+		d.device_name, 
+		d.is_line,
+		d.device_no,
+		d.lat,
+		d.lng,
+		d.city_id,
+		d.group_id,
+		d.district_id,
+		d.subdistrict_id,
+		d.point_code,
+		d.address,
+		d.electrical_panel,
+		d.surrounding_waters,
+		d.location_information,
+		d.note,
+		c.city_name,
+		dt.district_name,
+		sd.subdistrict_name,
+		s.id as sensor_id,
+		s.sensor_name
 	FROM devices d
 	LEFT JOIN groups g ON d.group_id = g.group_id
 	LEFT JOIN cities c ON d.city_id = c.city_id 
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
 	LEFT JOIN sensors s ON d.id = s.device_id AND s.sensor_name = 'Water level'
-	WHERE 1=1
-	ORDER BY d.is_line DESC`
+	GROUP BY g.group_name, d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, d.city_id, d.group_id, d.district_id, d.subdistrict_id, d.point_code, d.address, d.electrical_panel, d.surrounding_waters, d.location_information, d.note, c.city_name, dt.district_name, sd.subdistrict_name, s.id, s.sensor_name
+	ORDER BY g.group_name ASC`
 
 	err := r.db.WithContext(ctx).Raw(query).Scan(&devices).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 
-	return devices, err
+	// Group devices by group_name
+	groupedDevices := make(map[string][]map[string]interface{})
+	for _, device := range devices {
+		groupName, ok := device["group_name"].(string)
+		if !ok || groupName == "" {
+			continue
+		}
+		groupedDevices[groupName] = append(groupedDevices[groupName], device)
+	}
+
+	// Convert to final format
+	result := make([]map[string]interface{}, 0)
+	for groupName, groupDevices := range groupedDevices {
+		groupMap := map[string]interface{}{
+			groupName: groupDevices,
+		}
+		result = append(result, groupMap)
+	}
+
+	return result, err
 }
