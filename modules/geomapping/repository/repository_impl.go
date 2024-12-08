@@ -24,13 +24,32 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
 		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
 		d.location_information, d.note,
-		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name
+		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name,
+		-- Separate columns for the three sensors
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.id END) AS water_level_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.sensor_name END) AS water_level_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.value END) AS water_level_value,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.unit END) AS water_level_unit,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.id END) AS flow_velocity_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.sensor_name END) AS flow_velocity_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.value END) AS flow_velocity_value,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.unit END) AS flow_velocity_unit,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.id END) AS instantaneous_flow_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.sensor_name END) AS instantaneous_flow_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.value END) AS instantaneous_flow_value,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.unit END) AS instantaneous_flow_unit
 	FROM devices d
 	LEFT JOIN groups g ON d.group_id = g.group_id
 	LEFT JOIN cities c ON d.city_id = c.city_id 
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
-	WHERE 1=1`
+	LEFT JOIN sensors s ON d.id = s.device_id AND s.sensor_name IN ('Water level', 'Flow velocity', 'Instantaneous flow')
+	WHERE 1=1
+	GROUP BY d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, 
+		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
+		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
+		d.location_information, d.note,
+		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name`
 
 	var params []interface{}
 
@@ -162,15 +181,26 @@ func (r *repository) Dashboard(ctx context.Context) ([]map[string]interface{}, e
 		c.city_name,
 		dt.district_name,
 		sd.subdistrict_name,
-		s.id as sensor_id,
-		s.sensor_name
+		-- Separate columns for the three sensors
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.id END) AS water_level_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.sensor_name END) AS water_level_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.value END) AS water_level_value,
+		MAX(CASE WHEN s.sensor_name = 'Water level' THEN s.unit END) AS water_level_unit,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.id END) AS flow_velocity_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.sensor_name END) AS flow_velocity_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.value END) AS flow_velocity_value,
+		MAX(CASE WHEN s.sensor_name = 'Flow velocity' THEN s.unit END) AS flow_velocity_unit,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.id END) AS instantaneous_flow_sensor_id,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.sensor_name END) AS instantaneous_flow_sensor_name,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.value END) AS instantaneous_flow_value,
+		MAX(CASE WHEN s.sensor_name = 'Instantaneous flow' THEN s.unit END) AS instantaneous_flow_unit
 	FROM devices d
 	LEFT JOIN groups g ON d.group_id = g.group_id
 	LEFT JOIN cities c ON d.city_id = c.city_id 
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
-	LEFT JOIN sensors s ON d.id = s.device_id AND s.sensor_name = 'Water level'
-	GROUP BY g.group_name, d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, d.city_id, d.group_id, d.district_id, d.subdistrict_id, d.point_code, d.address, d.electrical_panel, d.surrounding_waters, d.location_information, d.note, c.city_name, dt.district_name, sd.subdistrict_name, s.id, s.sensor_name
+	LEFT JOIN sensors s ON d.id = s.device_id AND s.sensor_name IN ('Water level', 'Flow velocity', 'Instantaneous flow')
+	GROUP BY g.group_name, d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, d.city_id, d.group_id, d.district_id, d.subdistrict_id, d.point_code, d.address, d.electrical_panel, d.surrounding_waters, d.location_information, d.note, c.city_name, dt.district_name, sd.subdistrict_name
 	ORDER BY g.group_name ASC`
 
 	err := r.db.WithContext(ctx).Raw(query).Scan(&devices).Error
@@ -178,21 +208,29 @@ func (r *repository) Dashboard(ctx context.Context) ([]map[string]interface{}, e
 		return nil, nil
 	}
 
-	// Group devices by group_name
+	// Track order of group names
+	var groupOrder []string
+	seenGroups := make(map[string]bool)
+
+	// Group devices by group_name while preserving order
 	groupedDevices := make(map[string][]map[string]interface{})
 	for _, device := range devices {
 		groupName, ok := device["group_name"].(string)
 		if !ok || groupName == "" {
 			continue
 		}
+		if !seenGroups[groupName] {
+			groupOrder = append(groupOrder, groupName)
+			seenGroups[groupName] = true
+		}
 		groupedDevices[groupName] = append(groupedDevices[groupName], device)
 	}
 
-	// Convert to final format
+	// Convert to final format preserving order
 	result := make([]map[string]interface{}, 0)
-	for groupName, groupDevices := range groupedDevices {
+	for _, groupName := range groupOrder {
 		groupMap := map[string]interface{}{
-			groupName: groupDevices,
+			groupName: groupedDevices[groupName],
 		}
 		result = append(result, groupMap)
 	}
