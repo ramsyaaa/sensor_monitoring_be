@@ -44,12 +44,7 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 	LEFT JOIN districts dt ON d.district_id = dt.district_id
 	LEFT JOIN subdistricts sd ON d.subdistrict_id = sd.subdistrict_id
 	LEFT JOIN sensors s ON d.id = s.device_id AND s.sensor_name IN ('Water level', 'Flow velocity', 'Instantaneous flow')
-	WHERE 1=1
-	GROUP BY d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, 
-		d.city_id, d.group_id, d.district_id, d.subdistrict_id, 
-		d.point_code, d.address, d.electrical_panel, d.surrounding_waters, 
-		d.location_information, d.note,
-		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name`
+	WHERE true`
 
 	var params []interface{}
 
@@ -75,7 +70,12 @@ func (r *repository) GetDevice(ctx context.Context, groupId, cityId, districtId,
 		params = append(params, keyword, keyword, keyword, keyword, keyword, keyword)
 	}
 
-	query += ` ORDER BY d.is_line DESC`
+	query += ` GROUP BY d.id, d.device_name, d.is_line, d.device_no, d.lat, d.lng, 
+		d.city_id, d.group_id, d.district_id, d.subdistrict_id,
+		d.point_code, d.address, d.electrical_panel, d.surrounding_waters,
+		d.location_information, d.note,
+		g.group_name, c.city_name, dt.district_name, sd.subdistrict_name
+		ORDER BY d.is_line DESC`
 
 	err := r.db.WithContext(ctx).Raw(query, params...).Scan(&devices).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
