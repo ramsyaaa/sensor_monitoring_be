@@ -25,7 +25,7 @@ func (r *repository) CreateReport(ctx context.Context, data models.GeneratedRepo
 
 func (r *repository) ReportList(ctx context.Context) ([]map[string]interface{}, error) {
 	var reports []map[string]interface{}
-	err := r.db.WithContext(ctx).Model(&models.GeneratedReport{}).Find(&reports).Error
+	err := r.db.WithContext(ctx).Raw("SELECT generated_reports.*, devices.device_name, devices.point_code FROM generated_reports JOIN devices ON generated_reports.device_id = devices.id").Scan(&reports).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
