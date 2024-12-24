@@ -27,11 +27,13 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	// Call AuthenticateService here and return the response
 	resp, err := h.service.Authenticate(c.Context(), credentials["username"], credentials["password"])
 	mappedResp := map[string]interface{}{
-		"access_token": resp[0]["access_token"],
-		"clientId":     resp[0]["client_id"],
-		"clientSecret": resp[0]["client_secret"],
-		"expires_in":   resp[0]["expires_at"],
-		"userId":       resp[0]["user_id"],
+		"access_token":  resp[0]["access_token"],
+		"clientId":      resp[0]["client_id"],
+		"clientSecret":  resp[0]["client_secret"],
+		"expires_in":    resp[0]["expires_at"],
+		"userId":        resp[0]["user_id"],
+		"refresh_token": resp[0]["access_token"],
+		"scope":         "tlinkAppId",
 	}
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(helper.APIResponse("Internal Server Error", http.StatusInternalServerError, "Error", nil))
