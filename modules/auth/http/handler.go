@@ -1,59 +1,40 @@
 package http
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"sensor_monitoring_be/helper"
+	"sensor_monitoring_be/modules/auth/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type AuthHandler struct {
+	service service.AuthService
 }
 
-func NewAuthHandler() *AuthHandler {
-	return &AuthHandler{}
+func NewAuthHandler(service service.AuthService) *AuthHandler {
+	return &AuthHandler{service: service}
 }
-
 func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
-	baseURL := os.Getenv("BASE_URL")
-	authHeader := os.Getenv("AUTH_HEADER")
 	var credentials map[string]string
 	if err := c.BodyParser(&credentials); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(helper.APIResponse("Invalid request", http.StatusBadRequest, "Bad Request", nil))
 	}
-	username := credentials["username"]
-	password := credentials["password"]
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/oauth/token?grant_type=password&username=%s&password=%s", baseURL, username, password), nil)
-	req.Header.Set("Authorization", authHeader)
-	if err != nil {
-		return err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	if len(respBody) == 0 {
+	if credentials["username"] != "bpbd" || credentials["password"] != "b9d6devel" {
 		return c.Status(http.StatusOK).JSON(helper.APIResponse("Login Failed, Invalid Credentials", http.StatusBadRequest, "Error", nil))
 	}
-	var responseMap map[string]interface{}
-	err = json.Unmarshal(respBody, &responseMap)
-	if err != nil {
-		return err
-	}
 
-	response := helper.APIResponse("Login Success", http.StatusOK, "OK", responseMap)
-	return c.Status(http.StatusOK).JSON(response)
+	// Call AuthenticateService here and return the response
+	resp, err := h.service.Authenticate(c.Context(), credentials["username"], credentials["password"])
+	mappedResp := map[string]interface{}{
+		"access_token": resp[0]["access_token"],
+		"clientId":     resp[0]["client_id"],
+		"clientSecret": resp[0]["client_secret"],
+		"expires_in":   resp[0]["expires_at"],
+		"userId":       resp[0]["user_id"],
+	}
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(helper.APIResponse("Internal Server Error", http.StatusInternalServerError, "Error", nil))
+	}
+	return c.Status(http.StatusOK).JSON(helper.APIResponse("Login Success", http.StatusOK, "OK", mappedResp))
 }

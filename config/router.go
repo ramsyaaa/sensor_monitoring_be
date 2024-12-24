@@ -42,7 +42,7 @@ func Route(db *gorm.DB) {
 	api.Use(helper.LogToFile())
 
 	// Set up your routes
-	routes.AuthRouter(api)
+	routes.AuthRouter(api, db)
 	routes.DeviceRouter(api)
 	routes.GeoMappingRouter(api, db)
 	routes.ReportRouter(api, db)
