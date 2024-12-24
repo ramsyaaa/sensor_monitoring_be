@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"sensor_monitoring_be/helper"
 	"sensor_monitoring_be/modules/auth/service"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -30,7 +31,7 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 		"access_token":  resp[0]["access_token"],
 		"clientId":      resp[0]["client_id"],
 		"clientSecret":  resp[0]["client_secret"],
-		"expires_in":    resp[0]["expires_at"],
+		"expires_in":    int(resp[0]["expires_at"].(time.Time).Unix()),
 		"userId":        resp[0]["user_id"],
 		"refresh_token": resp[0]["access_token"],
 		"scope":         "tlinkAppId",
