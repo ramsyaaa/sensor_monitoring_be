@@ -98,3 +98,20 @@ func (r *repository) CheckPassword(ctx context.Context, username, password strin
 
 	return true, nil
 }
+func (r *repository) ListUsers(ctx context.Context) ([]map[string]interface{}, error) {
+	var users []models.TokenAuth
+	err := r.db.WithContext(ctx).Where("role = ?", "visitor").Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var userList []map[string]interface{}
+	for _, user := range users {
+		userList = append(userList, map[string]interface{}{
+			"id":       user.ID,
+			"username": user.Username,
+		})
+	}
+
+	return userList, nil
+}

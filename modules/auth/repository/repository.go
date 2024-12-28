@@ -11,4 +11,5 @@ type AuthRepository interface {
 	DeleteUser(ctx context.Context, id int) error
 	CheckUsernameExist(ctx context.Context, username string) (bool, error)
 	CheckPassword(ctx context.Context, username, password string) (bool, error)
+	ListUsers(ctx context.Context) ([]map[string]interface{}, error)
 }

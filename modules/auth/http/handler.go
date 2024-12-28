@@ -99,3 +99,12 @@ func (h *AuthHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	}
 	return c.Status(http.StatusOK).JSON(helper.APIResponse("User Deleted Success", http.StatusOK, "OK", nil))
 }
+
+func (h *AuthHandler) HandleListUsers(c *fiber.Ctx) error {
+	// Call ListUsers service here and return the response
+	resp, err := h.service.ListUsers(c.Context())
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(helper.APIResponse("Internal Server Error", http.StatusInternalServerError, "Error", nil))
+	}
+	return c.Status(http.StatusOK).JSON(helper.APIResponse("Get Users Success", http.StatusOK, "OK", resp))
+}
