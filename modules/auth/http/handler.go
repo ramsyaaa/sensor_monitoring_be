@@ -30,6 +30,8 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	// Call AuthenticateService here and return the response
 	resp, err := h.service.Authenticate(c.Context(), credentials["username"], credentials["password"])
 	mappedResp := map[string]interface{}{
+		"id":            resp[0]["id"],
+		"role":          resp[0]["role"],
 		"access_token":  resp[0]["access_token"],
 		"clientId":      resp[0]["client_id"],
 		"clientSecret":  resp[0]["client_secret"],

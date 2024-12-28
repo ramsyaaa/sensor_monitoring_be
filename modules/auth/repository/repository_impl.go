@@ -19,9 +19,30 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 
 func (r *repository) Authenticate(ctx context.Context, username, password string) ([]map[string]interface{}, error) {
 	var auth []map[string]interface{}
-	err := r.db.WithContext(ctx).Model(&models.TokenAuth{}).Where("id = ?", 1).Select("access_token, client_id, client_secret, expires_at, user_id").Find(&auth).Error
+	var userData map[string]interface{}
+
+	// Get user data first
+	err := r.db.WithContext(ctx).Model(&models.TokenAuth{}).
+		Where("username = ?", username).
+		Select("id, role").
+		Take(&userData).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
+	}
+
+	// Get token data
+	err = r.db.WithContext(ctx).Model(&models.TokenAuth{}).
+		Where("id = ?", 1).
+		Select("access_token, client_id, client_secret, expires_at, user_id").
+		Find(&auth).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	// Combine the data
+	if len(auth) > 0 {
+		auth[0]["id"] = userData["id"]
+		auth[0]["role"] = userData["role"]
 	}
 
 	return auth, err
