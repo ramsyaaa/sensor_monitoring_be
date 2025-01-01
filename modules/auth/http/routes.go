@@ -10,4 +10,5 @@ func AuthRoutes(app *fiber.App, handler *AuthHandler) {
 	app.Put("/user/edit/:id", handler.HandleEditUser)
 	app.Delete("/user/delete/:id", handler.HandleDeleteUser)
 	app.Get("/user/list", handler.HandleListUsers)
+	app.Get("/refresh-token", handler.HandleRefreshToken)
 }

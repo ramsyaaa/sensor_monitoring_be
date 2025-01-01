@@ -62,6 +62,11 @@ func (s *service) CheckUsernameExist(ctx context.Context, username string) (bool
 func (s *service) CheckPassword(ctx context.Context, username, password string) (bool, error) {
 	return s.repo.CheckPassword(ctx, username, password)
 }
+
 func (s *service) ListUsers(ctx context.Context) ([]map[string]interface{}, error) {
 	return s.repo.ListUsers(ctx)
+}
+
+func (s *service) RefreshToken(ctx context.Context) ([]map[string]interface{}, error) {
+	return s.repo.RefreshToken(ctx)
 }

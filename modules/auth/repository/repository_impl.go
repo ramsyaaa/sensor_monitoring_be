@@ -136,3 +136,18 @@ func (r *repository) ListUsers(ctx context.Context) ([]map[string]interface{}, e
 
 	return userList, nil
 }
+
+func (r *repository) RefreshToken(ctx context.Context) ([]map[string]interface{}, error) {
+	var user models.TokenAuth
+	err := r.db.WithContext(ctx).Where("id = ?", 1).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var tokenList []map[string]interface{}
+	tokenList = append(tokenList, map[string]interface{}{
+		"access_token": user.AccessToken,
+	})
+
+	return tokenList, nil
+}

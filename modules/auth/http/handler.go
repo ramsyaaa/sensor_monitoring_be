@@ -110,3 +110,12 @@ func (h *AuthHandler) HandleListUsers(c *fiber.Ctx) error {
 	}
 	return c.Status(http.StatusOK).JSON(helper.APIResponse("Get Users Success", http.StatusOK, "OK", resp))
 }
+
+func (h *AuthHandler) HandleRefreshToken(c *fiber.Ctx) error {
+	// Memanggil service RefreshToken dan mengembalikan response
+	resp, err := h.service.RefreshToken(c.Context())
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(helper.APIResponse("Internal Server Error", http.StatusInternalServerError, "Error", nil))
+	}
+	return c.Status(http.StatusOK).JSON(helper.APIResponse("Token Refresh Success", http.StatusOK, "OK", resp))
+}
